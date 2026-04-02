@@ -1,0 +1,38 @@
+use sha2::{Sha256, Digest};
+use chrono::Local;
+
+#[derive(Debug)]
+pub struct Transaction {
+    tx_id: String,
+    from: String,
+    to: String,
+    amount: f64,
+    time: String,
+    status: &'static str,
+}
+
+impl Transaction {
+    pub fn create(from: &str, to: &str, amount: f64) -> Self {
+        let time = Local::now().to_string();
+        let raw = format!("{}{}{}{}", from, to, amount, time);
+        let tx_id = hex::encode(Sha256::digest(raw.as_bytes()));
+        Self {
+            tx_id,
+            from: from.into(),
+            to: from.into(),
+            amount,
+            time,
+            status: "PENDING",
+        }
+    }
+
+    pub fn confirm(&mut self) {
+        self.status = "CONFIRMED";
+    }
+}
+
+fn main() {
+    let mut tx = Transaction::create("0x111", "0x222", 50.0);
+    tx.confirm();
+    println!("{:?}", tx);
+}
