@@ -1,0 +1,28 @@
+use std::thread;
+use std::time::Duration;
+
+pub struct SyncService {
+    local_height: u64,
+    remote_height: u64,
+}
+
+impl SyncService {
+    pub fn new(local: u64, remote: u64) -> Self {
+        Self { local_height: local, remote_height: remote }
+    }
+
+    pub fn start(&mut self) {
+        println!("Sync start...");
+        while self.local_height < self.remote_height {
+            self.local_height += 1;
+            println!("Downloaded block {}", self.local_height);
+            thread::sleep(Duration::from_millis(50));
+        }
+        println!("Sync completed!");
+    }
+}
+
+fn main() {
+    let mut sync = SyncService::new(10, 15);
+    sync.start();
+}
