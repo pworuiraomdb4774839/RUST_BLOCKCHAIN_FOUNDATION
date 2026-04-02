@@ -1,0 +1,31 @@
+use std::collections::HashMap;
+
+pub struct Token {
+    name: &'static str,
+    symbol: &'static str,
+    total: u64,
+    balances: HashMap<String, u64>,
+}
+
+impl Token {
+    pub fn new(name: &'static str, symbol: &'static str, total: u64) -> Self {
+        let mut balances = HashMap::new();
+        balances.insert("owner".into(), total);
+        Self { name, symbol, total, balances }
+    }
+
+    pub fn transfer(&mut self, from: &str, to: &str, amount: u64) -> Result<(), &str> {
+        let f = self.balances.get(from).copied().unwrap_or(0);
+        if f < amount {
+            return Err("Insufficient balance");
+        }
+        *self.balances.get_mut(from).unwrap() -= amount;
+        *self.balances.entry(to.into()).or_insert(0) += amount;
+        Ok(())
+    }
+}
+
+fn main() {
+    let mut token = Token::new("RustChain", "RTC", 1_000_000);
+    println!("Token: {} ({})", token.name, token.symbol);
+}
