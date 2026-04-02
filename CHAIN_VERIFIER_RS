@@ -1,0 +1,32 @@
+use sha2::{Sha256, Digest};
+
+#[derive(Clone)]
+pub struct ChainBlock {
+    idx: u64,
+    data: String,
+    prev: String,
+    hash: String,
+}
+
+pub fn verify_chain(chain: &[ChainBlock]) -> bool {
+    for i in 1..chain.len() {
+        let curr = &chain[i];
+        let prev = &chain[i-1];
+
+        let input = format!("{}{}{}", curr.idx, curr.data, curr.prev);
+        let check = hex::encode(Sha256::digest(input.as_bytes()));
+
+        if curr.hash != check || curr.prev != prev.hash {
+            return false;
+        }
+    }
+    true
+}
+
+fn main() {
+    let chain = vec![
+        ChainBlock { idx:0, data:"genesis".into(), prev:"".into(), hash:"genhash".into() },
+        ChainBlock { idx:1, data:"tx".into(), prev:"genhash".into(), hash:"txhash".into() },
+    ];
+    println!("Valid: {}", verify_chain(&chain));
+}
