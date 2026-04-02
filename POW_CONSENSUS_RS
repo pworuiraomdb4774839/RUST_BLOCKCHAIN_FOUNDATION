@@ -1,0 +1,30 @@
+use sha2::{Sha256, Digest};
+
+pub struct PoW {
+    difficulty: usize,
+}
+
+impl PoW {
+    pub fn new(difficulty: usize) -> Self {
+        Self { difficulty }
+    }
+
+    pub fn run(&self, data: &str) -> (String, u64) {
+        let mut nonce = 0;
+        let target = "0".repeat(self.difficulty);
+        loop {
+            let input = format!("{}{}", data, nonce);
+            let hash = hex::encode(Sha256::digest(input.as_bytes()));
+            if hash.starts_with(&target) {
+                return (hash, nonce);
+            }
+            nonce += 1;
+        }
+    }
+}
+
+fn main() {
+    let pow = PoW::new(4);
+    let (hash, nonce) = pow.run("Block Data");
+    println!("Mined: hash={}, nonce={}", hash, nonce);
+}
