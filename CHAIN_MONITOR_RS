@@ -1,0 +1,28 @@
+use std::thread;
+use std::time::Duration;
+
+pub struct Monitor {
+    height: u64,
+    tps: f64,
+}
+
+impl Monitor {
+    pub fn new() -> Self {
+        Self { height: 0, tps: 0.0 }
+    }
+
+    pub fn run(&mut self) {
+        loop {
+            self.height += 1;
+            self.tps = self.height as f64 * 0.3;
+            println!("Height: {} | TPS: {:.2}", self.height, self.tps);
+            thread::sleep(Duration::from_secs(1));
+        }
+    }
+}
+
+fn main() {
+    let mut m = Monitor::new();
+    thread::spawn(move || m.run());
+    thread::sleep(Duration::from_secs(4));
+}
