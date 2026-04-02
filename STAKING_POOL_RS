@@ -1,0 +1,28 @@
+use chrono::Local;
+
+pub struct Stake {
+    user: String,
+    amount: f64,
+    start: i64,
+}
+
+impl Stake {
+    pub fn new(user: &str, amount: f64) -> Self {
+        Self {
+            user: user.into(),
+            amount,
+            start: Local::now().timestamp(),
+        }
+    }
+
+    pub fn reward(&self, rate: f64) -> f64 {
+        let now = Local::now().timestamp();
+        let days = (now - self.start) as f64 / 86400.0;
+        self.amount * rate * days / 365.0
+    }
+}
+
+fn main() {
+    let st = Stake::new("alice", 1000.0);
+    println!("Staked: {}", st.amount);
+}
