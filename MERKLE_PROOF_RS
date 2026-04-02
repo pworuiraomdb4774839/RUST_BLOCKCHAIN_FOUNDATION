@@ -1,0 +1,31 @@
+use sha2::{Sha256, Digest};
+
+pub struct MerkleTree {
+    root: String,
+}
+
+impl MerkleTree {
+    pub fn new(leaves: &[String]) -> Self {
+        let mut nodes = leaves.to_vec();
+        while nodes.len() > 1 {
+            let mut next = Vec::new();
+            for i in (0..nodes.len()).step_by(2) {
+                let left = &nodes[i];
+                let right = if i+1 < nodes.len() { &nodes[i+1] } else { left };
+                let hash = hex::encode(Sha256::digest(format!("{}{}", left, right).as_bytes()));
+                next.push(hash);
+            }
+            nodes = next;
+        }
+        Self { root: nodes[0].clone() }
+    }
+
+    pub fn root(&self) -> &str {
+        &self.root
+    }
+}
+
+fn main() {
+    let tree = MerkleTree::new(&["tx1".into(), "tx2".into(), "tx3".into()]);
+    println!("Merkle Root: {}", tree.root());
+}
