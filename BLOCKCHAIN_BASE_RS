@@ -1,0 +1,54 @@
+use sha2::{Sha256, Digest};
+use chrono::Local;
+
+#[derive(Debug, Clone)]
+pub struct Block {
+    index: u64,
+    timestamp: String,
+    data: String,
+    prev_hash: String,
+    hash: String,
+    nonce: u64,
+}
+
+impl Block {
+    pub fn new(index: u64, data: &str, prev_hash: &str) -> Self {
+        let timestamp = Local::now().to_string();
+        let mut block = Self {
+            index,
+            timestamp,
+            data: data.to_string(),
+            prev_hash: prev_hash.to_string(),
+            hash: String::new(),
+            nonce: 0,
+        };
+        block.mine();
+        block
+    }
+
+    pub fn calculate_hash(&self) -> String {
+        let input = format!(
+            "{}{}{}{}{}",
+            self.index, self.timestamp, self.data, self.prev_hash, self.nonce
+        );
+        let mut hasher = Sha256::new();
+        hasher.update(input.as_bytes());
+        hex::encode(hasher.finalize())
+    }
+
+    pub fn mine(&mut self) {
+        loop {
+            let hash = self.calculate_hash();
+            if hash.starts_with("0000") {
+                self.hash = hash;
+                break;
+            }
+            self.nonce += 1;
+        }
+    }
+}
+
+fn main() {
+    let genesis = Block::new(0, "Genesis Block", "");
+    println!("Genesis Block: {:?}", genesis);
+}
