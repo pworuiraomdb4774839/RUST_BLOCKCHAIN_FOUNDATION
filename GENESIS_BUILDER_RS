@@ -1,0 +1,26 @@
+use sha2::{Sha256, Digest};
+use chrono::Local;
+
+pub struct Genesis {
+    chain_id: String,
+    supply: u64,
+    hash: String,
+}
+
+impl Genesis {
+    pub fn build(chain_id: &str, supply: u64) -> Self {
+        let time = Local::now().to_string();
+        let raw = format!("{}{}{}", chain_id, supply, time);
+        let hash = hex::encode(Sha256::digest(raw.as_bytes()));
+        Self {
+            chain_id: chain_id.into(),
+            supply,
+            hash,
+        }
+    }
+}
+
+fn main() {
+    let gen = Genesis::build("RUST_CHAIN", 21_000_000);
+    println!("Genesis Hash: {}", gen.hash);
+}
