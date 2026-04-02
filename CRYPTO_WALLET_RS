@@ -1,0 +1,26 @@
+use k256::{ecdsa::{SigningKey, VerifyingKey}, elliptic_curve::rand_core::OsRng};
+use sha2::Sha256;
+
+pub struct Wallet {
+    secret_key: SigningKey,
+    public_key: VerifyingKey,
+    address: String,
+}
+
+impl Wallet {
+    pub fn new() -> Self {
+        let secret = SigningKey::random(&mut OsRng);
+        let public = VerifyingKey::from(&secret);
+        let addr = hex::encode(public.to_bytes());
+        Self { secret_key: secret, public_key: public, address: addr }
+    }
+
+    pub fn get_address(&self) -> &str {
+        &self.address
+    }
+}
+
+fn main() {
+    let wallet = Wallet::new();
+    println!("Wallet Address: {}", wallet.get_address());
+}
