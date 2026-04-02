@@ -1,0 +1,13 @@
+use k256::ecdsa::{SigningKey, Signature, signature::Signer, signature::Verifier};
+use rand_core::OsRng;
+
+fn main() {
+    let secret = SigningKey::random(&mut OsRng);
+    let public = secret.verifying_key();
+
+    let msg = b"blockchain transaction";
+    let sig: Signature = secret.sign(msg);
+
+    let ok = public.verify(msg, &sig).is_ok();
+    println!("Signature valid: {}", ok);
+}
