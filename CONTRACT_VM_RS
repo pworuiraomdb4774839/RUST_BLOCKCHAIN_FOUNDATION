@@ -1,0 +1,33 @@
+use std::collections::HashMap;
+
+pub struct ContractVM {
+    storage: HashMap<String, String>,
+    owner: String,
+}
+
+impl ContractVM {
+    pub fn new(owner: &str) -> Self {
+        Self {
+            storage: HashMap::new(),
+            owner: owner.into(),
+        }
+    }
+
+    pub fn set(&mut self, key: &str, value: &str, caller: &str) -> Result<(), &str> {
+        if caller != self.owner {
+            return Err("Permission denied");
+        }
+        self.storage.insert(key.into(), value.into());
+        Ok(())
+    }
+
+    pub fn get(&self, key: &str) -> &str {
+        self.storage.get(key).map(|s| s.as_str()).unwrap_or("")
+    }
+}
+
+fn main() {
+    let mut vm = ContractVM::new("admin");
+    vm.set("token", "10000", "admin").unwrap();
+    println!("Token: {}", vm.get("token"));
+}
